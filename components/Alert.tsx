@@ -12,8 +12,14 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
   withSpring,
+  runOnJS,
 } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 
 interface AlertProps {
   title: string;
@@ -28,6 +34,7 @@ interface AlertProps {
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const MAX_WIDTH = SCREEN_WIDTH * 0.8; // Maximum width 80% of screen
 const MIN_WIDTH = 200;
+const DISMISS_THRESHOLD = 100;
 
 const AppleStyleAlert: React.FC<AlertProps> = ({
   visible,
@@ -46,7 +53,7 @@ const AppleStyleAlert: React.FC<AlertProps> = ({
     if (visible) {
       opacity.value = withTiming(1, { duration: 300 });
       translateY.value = withSpring(0);
-      setTimeout(onDismiss, 3000);
+      setTimeout(() => runOnJS(onDismiss)(), 3000);
     } else {
       opacity.value = withTiming(0, { duration: 300 });
       translateY.value = withTiming(position === "bottom" ? 50 : -50, {
@@ -65,33 +72,56 @@ const AppleStyleAlert: React.FC<AlertProps> = ({
     setContentWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width + 40)));
   };
 
+  // dismiss interactively
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      translateY.value = event.translationY;
+    })
+    .onEnd((event) => {
+      if (Math.abs(event.translationY) > DISMISS_THRESHOLD) {
+        translateY.value = withTiming(
+          position === "bottom" ? 100 : -100,
+          { duration: 200 },
+          () => {
+            runOnJS(onDismiss)();
+          },
+        );
+      } else {
+        translateY.value = withSpring(0);
+      }
+    });
+
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        animatedStyle,
-        squared && styles.squared,
-        position === "bottom" ? styles.bottom : styles.top,
-        { width: contentWidth },
-      ]}
-    >
-      <BlurView style={styles.blur} intensity={20} />
-      <View style={styles.content}>
-        {icon && (
-          <View style={styles.iconContainer}>
-            {typeof icon === "string" ? (
-              <Image source={icon} style={styles.icon} />
-            ) : (
-              icon
+    <GestureHandlerRootView style={StyleSheet.absoluteFill}>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View
+          style={[
+            styles.container,
+            animatedStyle,
+            squared && styles.squared,
+            position === "bottom" ? styles.bottom : styles.top,
+            { width: contentWidth },
+          ]}
+        >
+          <BlurView style={styles.blur} intensity={20} />
+          <View style={styles.content}>
+            {icon && (
+              <View style={styles.iconContainer}>
+                {typeof icon === "string" ? (
+                  <Image source={icon} style={styles.icon} />
+                ) : (
+                  icon
+                )}
+              </View>
             )}
+            <View style={styles.textContainer} onLayout={onTextLayout}>
+              <Text style={styles.title}>{title}</Text>
+              {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
+            </View>
           </View>
-        )}
-        <View style={styles.textContainer} onLayout={onTextLayout}>
-          <Text style={styles.title}>{title}</Text>
-          {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
-        </View>
-      </View>
-    </Animated.View>
+        </Animated.View>
+      </GestureDetector>
+    </GestureHandlerRootView>
   );
 };
 
