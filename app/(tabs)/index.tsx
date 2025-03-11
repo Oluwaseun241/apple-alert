@@ -23,7 +23,7 @@ export default function index() {
         {/* Basic Drop */}
         <TouchableOpacity
           className="bg-blue-500 p-4 rounded-lg items-center"
-          onPress={() => showAlert({ title: "Basic Alert" })}
+          onPress={() => showAlert({ title: "Basic drop" })}
         >
           <Text className="text-white">Basic Drop</Text>
         </TouchableOpacity>
@@ -32,7 +32,7 @@ export default function index() {
         <TouchableOpacity
           className="bg-blue-500 p-4 rounded-lg items-center"
           onPress={() =>
-            showAlert({ title: "Title", subTitle: "This is a subtitle" })
+            showAlert({ title: "Basic drop", subTitle: "subtitle" })
           }
         >
           <Text className="text-white">Drop with Subtitle</Text>
@@ -44,7 +44,7 @@ export default function index() {
           onPress={() =>
             showAlert({
               title: "Warning",
-              subTitle: "Something went wrong!",
+              subTitle: "This is a warning",
               icon: <Ionicons name="warning" size={24} color="red" />,
             })
           }
@@ -57,7 +57,8 @@ export default function index() {
           className="bg-blue-500 p-4 rounded-lg items-center"
           onPress={() =>
             showAlert({
-              title: "Square Alert",
+              title: "Basic drop",
+              subTitle: "subtitle",
               squared: true,
             })
           }
@@ -70,7 +71,8 @@ export default function index() {
           className="bg-blue-500 p-4 rounded-lg items-center"
           onPress={() =>
             showAlert({
-              title: "Bottom Alert",
+              title: "Bottom positioned drop",
+              subTitle: "subtitle",
               position: "bottom",
             })
           }

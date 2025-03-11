@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  LayoutChangeEvent,
+  Dimensions,
+} from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,6 +25,10 @@ interface AlertProps {
   squared?: boolean;
 }
 
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const MAX_WIDTH = SCREEN_WIDTH * 0.8; // Maximum width 80% of screen
+const MIN_WIDTH = 200;
+
 const AppleStyleAlert: React.FC<AlertProps> = ({
   visible,
   title,
@@ -29,7 +40,7 @@ const AppleStyleAlert: React.FC<AlertProps> = ({
 }) => {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(position === "bottom" ? 50 : -50);
-  const [contentWidth, setContentWidth] = useState(0);
+  const [contentWidth, setContentWidth] = useState<number>(MIN_WIDTH);
 
   useEffect(() => {
     if (visible) {
@@ -49,6 +60,11 @@ const AppleStyleAlert: React.FC<AlertProps> = ({
     transform: [{ translateY: translateY.value }],
   }));
 
+  const onTextLayout = (event: LayoutChangeEvent) => {
+    const { width } = event.nativeEvent.layout;
+    setContentWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, width + 40)));
+  };
+
   return (
     <Animated.View
       style={[
@@ -56,7 +72,7 @@ const AppleStyleAlert: React.FC<AlertProps> = ({
         animatedStyle,
         squared && styles.squared,
         position === "bottom" ? styles.bottom : styles.top,
-        { width: Math.max(200, Math.min(contentWidth + 40, 350)) },
+        { width: contentWidth },
       ]}
     >
       <BlurView style={styles.blur} intensity={20} />
@@ -70,7 +86,7 @@ const AppleStyleAlert: React.FC<AlertProps> = ({
             )}
           </View>
         )}
-        <View style={styles.textContainer}>
+        <View style={styles.textContainer} onLayout={onTextLayout}>
           <Text style={styles.title}>{title}</Text>
           {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
         </View>
@@ -87,8 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     backgroundColor: "rgba(255, 255, 255, 0.3)",
     overflow: "hidden",
-    minWidth: 200,
-    maxWidth: 350,
+    maxWidth: MAX_WIDTH,
   },
   squared: {
     borderRadius: 14,
@@ -105,17 +120,17 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
   },
   iconContainer: {
-    marginRight: 10,
+    marginRight: 8,
   },
   icon: {
     width: 30,
     height: 30,
   },
   textContainer: {
-    flexGrow: 1,
+    maxWidth: MAX_WIDTH - 50,
   },
   title: {
     fontSize: 16,
