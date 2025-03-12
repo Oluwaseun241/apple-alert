@@ -1,9 +1,8 @@
-# React Native Starter 👋
+# react-native-drops 👋
 
-using `bun install`
+show alerts in the Apple style,
+like the one used when toggling silent mode
 
-## Feature
+## Demo
 
-- [x] Expo router
-- [x] Nativewind
-- [x] Svg support
+[X](https://x.com/tanimola_jnr/status/1899615866888634736)

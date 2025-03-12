@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     padding: 10,
     borderRadius: 30,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(255, 255, 255, 0.4)",
     overflow: "hidden",
     maxWidth: MAX_WIDTH,
   },
